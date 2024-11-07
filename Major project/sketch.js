@@ -1,4 +1,6 @@
 // Global variables
+let daytime = false;
+let bg = 0;
 let secondSegStart;
 let secondSegWidth;
 let thirdSegStart;
@@ -12,14 +14,10 @@ let rectHeight;
 let red = [206, 29, 29];
 let blue = [21, 33, 173];
 let yellow = [255, 196, 31];
-let numNoisePixels = 50;
-let noisePixels = [];
 let rects1 = [];
 let rects2 = [];
 let rects3 = [];
 let rects4 = [];
-let clouds = [];
-let numClouds = 10;
 
 function fillColour(colour) { // Fills colour based on inputted colour name
   switch(colour) {
@@ -41,19 +39,19 @@ function fillColour(colour) { // Fills colour based on inputted colour name
   }
 }
 
-function drawRect1(x, y, w, h, c, m) { // draws rectangle using ratios as setup in global variables
+function drawRect1(x, y, w, h, c, m) { // draws rectangles for first building
   rects1.push(new ChangeRect(x, y, w, h, c, m));
 }
 
-function drawRect2(x, y, w, h, c, m) { // draws rectangle using ratios as setup in global variables
+function drawRect2(x, y, w, h, c, m) { // draws rectangles for second building
   rects2.push(new ChangeRect(x, y, w, h, c, m));
 }
 
-function drawRect3(x, y, w, h, c, m) { // draws rectangle using ratios as setup in global variables
+function drawRect3(x, y, w, h, c, m) { // draws rectangles for third building
   rects3.push(new ChangeRect(x, y, w, h, c, m));
 }
 
-function drawRect4(x, y, w, h, c, m) { // draws rectangle using ratios as setup in global variables
+function drawRect4(x, y, w, h, c, m) { // draws rectangles for fourth building
   rects4.push(new ChangeRect(x, y, w, h, c, m));
 }
 
@@ -71,17 +69,12 @@ function setup() {
   rectWidth = thirdSegWidth/40;
   rectHeight = maxHeight/80;
 
-  // Setup clouds
-  for (let i = 0; i > numClouds; i++) {
-    clouds.push(new Cloud(i*(height/numClouds), rectHeight * i * 2, 10));
-  }
-
-  // // Setup noise
-  // for (let i = 0; i < numNoisePixels; i++) {
-  //   noisePixels.push(new NoisePixel());
+  // // Setup clouds
+  // for (let i = 0; i > numClouds; i++) {
+  //   clouds.push(new Cloud(i*(height/numClouds), rectHeight * i * 2, 10));
   // }
 
-  // Bottom layer
+  // Buildings
   drawFirstBuilding();
   drawSecondBuilding();
   drawThirdBuilding();
@@ -89,7 +82,12 @@ function setup() {
 }
 
 function draw() {
-  background(0);
+  if (daytime == true) {
+    bg = lerp(bg, 220, 0.02);
+  } else {
+    bg = lerp(bg, 0, 0.03);
+  }
+  background(bg);
 
   // Draw clouds
   for (let i = 0; i < clouds.length; i++) {
@@ -132,10 +130,10 @@ function draw() {
   pop();
 
   // Noise Pixels
-  for (let i = 0; i < noisePixels.length; i++) {
-    noisePixels[i].update();
-    noisePixels[i].drawNoise();
-  }
+  // for (let i = 0; i < noisePixels.length; i++) {
+  //   noisePixels[i].update();
+  //   noisePixels[i].drawNoise();
+  // }
 
   // Yellow floor
   fillColour("yellow");
@@ -421,7 +419,7 @@ class ChangeRect {
     this.height = h;
     this.currentH = this.height;
     this.colour = c;
-    this.amplitude = 1 * rectWidth;
+    this.amplitude = rectWidth;
     this.noiseStep = 0.01;
     this.currentNoiseX = random(5);
     this.currentNoiseHeight = random(5);
@@ -443,82 +441,88 @@ class ChangeRect {
       this.currentNoiseX += this.noiseStep;
       this.currentNoiseHeight += this.noiseStep;
     }
-  }
-}
 
-class Cloud {
-  constructor(y, amplitude, alpha) {
-    this.currentX = 0;
-    this.y = y;
-    this.currentY = y;
-    this.stepSize = 1;
-    this.xPoints = 10;
-    this.middleSteps = 10;
-    this.lerpStep = 0.2;
-    this.amplitude = amplitude;
-    this.alpha = alpha;
-    this.currentStep = 0;
-  }
-
-  draw() {
-    push();
-    fill(255);
-    noStroke();
-    beginShape();
-    for (let i = 0; i < this.xPoints; i++) {
-        let yPos = map(noise(this.currentStep + i), 0, 1, -this.amplitude, this.amplitude) + this.y;
-        this.currentY = yPos;
-      //   for (let j = 0; i < this.middleSteps; j++) {
-      //     this.currentY = lerp(this.currentY, yPos, this.lerpStep);
-      //     let xPos = i*(width/(this.xPoints*this.middleSteps));
-      //     vertex(xPos, this.currentY);
-      // }
+    if (daytime == true) {
+      this.amplitude = lerp(this.amplitude, 0, 0.02);
+    } else {
+      this.amplitude = lerp(this.amplitude, rectWidth, 0.02);
     }
-    vertex(0,0);
-    vertex(width, height);
-    vertex(0, height);
-    endShape(CLOSE);
-    pop();
-  }
-
-  update() {
-    this.currentStep += this.stepSize;
   }
 }
 
-class NoisePixel {
-  constructor() {
-    this.x = random(thirdSegWidth);
-    this.y = random(minHeight, height);
-    this.currentX = this.x;
-    this.currentY = this.y;
-    this.width = random(1, 4) * rectWidth;
-    this.height = random(1, 4) * rectHeight;
-    this.baseColour = get(this.x + this.width/2, this.y + this.height/2);
-    this.amplitude = 50;
-    this.colour = [random(this.amplitude) + this.baseColour[0], random(this.amplitude) * this.amplitude + this.baseColour[1], random(this.amplitude) * this.amplitude + this.baseColour[2]];
-    this.noiseStep = 0.01;
-    this.currentNoiseX = random(5);
-    this.currentNoiseY = random(5);
-  }
+// class Cloud {
+//   constructor(y, amplitude, alpha) {
+//     this.currentX = 0;
+//     this.y = y;
+//     this.currentY = y;
+//     this.stepSize = 1;
+//     this.xPoints = 10;
+//     this.middleSteps = 10;
+//     this.lerpStep = 0.2;
+//     this.amplitude = amplitude;
+//     this.alpha = alpha;
+//     this.currentStep = 0;
+//   }
 
-  drawNoise() {
-    push();
-    fill(this.colour[0], this.colour[1], this.colour[2]);
-    // console.log(this.currentX, this.currentY, this.width, this.height);
-    rect(this.currentX, this.currentY, this.width, this.height);
-    pop();
-  }
+//   draw() {
+//     push();
+//     fill(255);
+//     noStroke();
+//     beginShape();
+//     for (let i = 0; i < this.xPoints; i++) {
+//         let yPos = map(noise(this.currentStep + i), 0, 1, -this.amplitude, this.amplitude) + this.y;
+//         this.currentY = yPos;
+//       //   for (let j = 0; i < this.middleSteps; j++) {
+//       //     this.currentY = lerp(this.currentY, yPos, this.lerpStep);
+//       //     let xPos = i*(width/(this.xPoints*this.middleSteps));
+//       //     vertex(xPos, this.currentY);
+//       // }
+//     }
+//     vertex(0,0);
+//     vertex(width, height);
+//     vertex(0, height);
+//     endShape(CLOSE);
+//     pop();
+//   }
 
-  update() {
-    this.currentX = noise(this.currentNoiseX) * this.amplitude + this.x;
-    this.currentY = noise(this.currentNoiseY) * this.amplitude + this.y;
-    this.baseColour = get(this.x + this.width/2, this.y + this.height/2);
-    this.colour = [noise(1) * this.amplitude + this.baseColour[0], noise(1) * this.amplitude + this.baseColour[1], noise(1) * this.amplitude + this.baseColour[2]];
-    this.currentNoiseX += this.noiseStep;
-    this.currentNoiseY += this.noiseStep;
-  }
-}
+//   update() {
+//     this.currentStep += this.stepSize;
+//   }
+// }
+
+// class NoisePixel {
+//   constructor() {
+//     this.x = random(thirdSegWidth);
+//     this.y = random(minHeight, height);
+//     this.currentX = this.x;
+//     this.currentY = this.y;
+//     this.width = random(1, 4) * rectWidth;
+//     this.height = random(1, 4) * rectHeight;
+//     this.baseColour = get(this.x + this.width/2, this.y + this.height/2);
+//     this.amplitude = 50;
+//     this.colour = [random(this.amplitude) + this.baseColour[0], random(this.amplitude) * this.amplitude + this.baseColour[1], random(this.amplitude) * this.amplitude + this.baseColour[2]];
+//     this.noiseStep = 0.01;
+//     this.currentNoiseX = random(5);
+//     this.currentNoiseY = random(5);
+//   }
+
+//   drawNoise() {
+//     push();
+//     fill(this.colour[0], this.colour[1], this.colour[2]);
+//     // console.log(this.currentX, this.currentY, this.width, this.height);
+//     rect(this.currentX, this.currentY, this.width, this.height);
+//     pop();
+//   }
+
+//   update() {
+//     this.currentX = noise(this.currentNoiseX) * this.amplitude + this.x;
+//     this.currentY = noise(this.currentNoiseY) * this.amplitude + this.y;
+//     this.baseColour = get(this.x + this.width/2, this.y + this.height/2);
+//     this.colour = [noise(1) * this.amplitude + this.baseColour[0], noise(1) * this.amplitude + this.baseColour[1], noise(1) * this.amplitude + this.baseColour[2]];
+//     this.currentNoiseX += this.noiseStep;
+//     this.currentNoiseY += this.noiseStep;
+//   }
+// }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
@@ -532,5 +536,9 @@ function windowResized() {
   maxHeight = windowHeight - minHeight;
   rectWidth = thirdSegWidth/40;
   rectHeight = maxHeight/80;
+}
+
+function mouseClicked() {
+  daytime = !daytime;
 }
 
