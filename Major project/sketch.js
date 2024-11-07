@@ -79,14 +79,14 @@ function setup() {
   drawRect(26, 33, 7, 8, "white");
   drawRect(2, 39, 8, 14, "red");
   drawRect(12, 42, 3, 14, "blue");
-  drawRect(7, 42, 1, 17, "yellow");
-  drawRect(10, 42, 1, 17, "yellow");
-  drawRect(22, 33, 4, 9, "yellow");
-  drawRect(1, 25, 33, 3, "yellow");
-  drawRect(16, 54, 1, 7, "black");
-  drawRect(7, 55, 32, 1, "black");
-  drawRect(4, 43, 13, 1, "black");
-  drawRect(4, 47, 13, 4, "yellow");
+  drawRect(7, 42, 1, 17, "yellow", false);
+  drawRect(10, 42, 1, 17, "yellow", false);
+  drawRect(22, 33, 4, 9, "yellow", false);
+  drawRect(1, 25, 33, 3, "yellow", false);
+  drawRect(16, 54, 1, 7, "black", false);
+  drawRect(7, 55, 32, 1, "black", false);
+  drawRect(4, 43, 13, 1, "black", false);
+  drawRect(4, 47, 13, 4, "yellow", false);
 
   // Top layer
   drawRect(3, 66, 22, 9, "blue");
@@ -96,13 +96,13 @@ function setup() {
   drawRect(3, 79, 5, 8, "red");
   drawRect(8, 77, 10, 3, "red");
   drawRect(23, 80, 9, 9, "red");
-  drawRect(22, 68, 16, 1, "black");
-  drawRect(7, 57, 32, 2, "yellow");
-  drawRect(22, 71, 16, 3, "yellow");
-  drawRect(25, 68, 2, 11, "yellow");
+  drawRect(22, 68, 16, 1, "black", false);
+  drawRect(7, 57, 32, 2, "yellow", false);
+  drawRect(22, 71, 16, 3, "yellow", false);
+  drawRect(25, 68, 2, 11, "yellow", false);
 
   // Yellow floor
-  drawRect(0, 3, 40, 3, "yellow");
+  drawRect(0, 3, 40, 3, "yellow", false);
 }
 
 function draw() {
@@ -139,7 +139,7 @@ class ChangeRect {
     this.noiseStep = 0.01;
     this.currentNoiseX = random(5);
     this.currentNoiseHeight = random(5);
-    this.move = true ?? move;
+    this.move = move ?? true;
   }
 
   draw() {
@@ -151,7 +151,7 @@ class ChangeRect {
 
   update() {
     if (this.move == true) {
-      this.currentX = this.x + noise(this.currentNoiseX) * this.amplitude;
+      this.currentX = this.x + noise(this.currentNoiseX) * this.amplitude - this.amplitude/2;
       this.currentH = this.height + noise(this.currentNoiseHeight) * this.amplitude;
       this.currentY = this.y + noise(this.currentNoiseHeight) * this.amplitude;
       this.currentNoiseX += this.noiseStep;
