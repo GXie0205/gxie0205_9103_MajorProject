@@ -1,6 +1,6 @@
 // Global variables
-let daytime = false;
-let bg = 0;
+let daytime = true;
+let bg = 220;
 let secondSegStart;
 let secondSegWidth;
 let thirdSegStart;
@@ -69,11 +69,6 @@ function setup() {
   rectWidth = thirdSegWidth/40;
   rectHeight = maxHeight/80;
 
-  // // Setup clouds
-  // for (let i = 0; i > numClouds; i++) {
-  //   clouds.push(new Cloud(i*(height/numClouds), rectHeight * i * 2, 10));
-  // }
-
   // Buildings
   drawFirstBuilding();
   drawSecondBuilding();
@@ -88,12 +83,6 @@ function draw() {
     bg = lerp(bg, 0, 0.03);
   }
   background(bg);
-
-  // Draw clouds
-  for (let i = 0; i < clouds.length; i++) {
-    clouds[i].update();
-    clouds[i].draw();
-  }
 
   // Draw buildings
   // Building 1
@@ -128,12 +117,6 @@ function draw() {
     rects4[i].draw();
   }
   pop();
-
-  // Noise Pixels
-  // for (let i = 0; i < noisePixels.length; i++) {
-  //   noisePixels[i].update();
-  //   noisePixels[i].drawNoise();
-  // }
 
   // Yellow floor
   fillColour("yellow");
@@ -419,7 +402,7 @@ class ChangeRect {
     this.height = h;
     this.currentH = this.height;
     this.colour = c;
-    this.amplitude = rectWidth;
+    this.amplitude = 0;
     this.noiseStep = 0.01;
     this.currentNoiseX = random(5);
     this.currentNoiseHeight = random(5);
@@ -450,79 +433,6 @@ class ChangeRect {
   }
 }
 
-// class Cloud {
-//   constructor(y, amplitude, alpha) {
-//     this.currentX = 0;
-//     this.y = y;
-//     this.currentY = y;
-//     this.stepSize = 1;
-//     this.xPoints = 10;
-//     this.middleSteps = 10;
-//     this.lerpStep = 0.2;
-//     this.amplitude = amplitude;
-//     this.alpha = alpha;
-//     this.currentStep = 0;
-//   }
-
-//   draw() {
-//     push();
-//     fill(255);
-//     noStroke();
-//     beginShape();
-//     for (let i = 0; i < this.xPoints; i++) {
-//         let yPos = map(noise(this.currentStep + i), 0, 1, -this.amplitude, this.amplitude) + this.y;
-//         this.currentY = yPos;
-//       //   for (let j = 0; i < this.middleSteps; j++) {
-//       //     this.currentY = lerp(this.currentY, yPos, this.lerpStep);
-//       //     let xPos = i*(width/(this.xPoints*this.middleSteps));
-//       //     vertex(xPos, this.currentY);
-//       // }
-//     }
-//     vertex(0,0);
-//     vertex(width, height);
-//     vertex(0, height);
-//     endShape(CLOSE);
-//     pop();
-//   }
-
-//   update() {
-//     this.currentStep += this.stepSize;
-//   }
-// }
-
-// class NoisePixel {
-//   constructor() {
-//     this.x = random(thirdSegWidth);
-//     this.y = random(minHeight, height);
-//     this.currentX = this.x;
-//     this.currentY = this.y;
-//     this.width = random(1, 4) * rectWidth;
-//     this.height = random(1, 4) * rectHeight;
-//     this.baseColour = get(this.x + this.width/2, this.y + this.height/2);
-//     this.amplitude = 50;
-//     this.colour = [random(this.amplitude) + this.baseColour[0], random(this.amplitude) * this.amplitude + this.baseColour[1], random(this.amplitude) * this.amplitude + this.baseColour[2]];
-//     this.noiseStep = 0.01;
-//     this.currentNoiseX = random(5);
-//     this.currentNoiseY = random(5);
-//   }
-
-//   drawNoise() {
-//     push();
-//     fill(this.colour[0], this.colour[1], this.colour[2]);
-//     // console.log(this.currentX, this.currentY, this.width, this.height);
-//     rect(this.currentX, this.currentY, this.width, this.height);
-//     pop();
-//   }
-
-//   update() {
-//     this.currentX = noise(this.currentNoiseX) * this.amplitude + this.x;
-//     this.currentY = noise(this.currentNoiseY) * this.amplitude + this.y;
-//     this.baseColour = get(this.x + this.width/2, this.y + this.height/2);
-//     this.colour = [noise(1) * this.amplitude + this.baseColour[0], noise(1) * this.amplitude + this.baseColour[1], noise(1) * this.amplitude + this.baseColour[2]];
-//     this.currentNoiseX += this.noiseStep;
-//     this.currentNoiseY += this.noiseStep;
-//   }
-// }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
@@ -541,4 +451,3 @@ function windowResized() {
 function mouseClicked() {
   daytime = !daytime;
 }
-
