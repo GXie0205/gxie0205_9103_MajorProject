@@ -1,4 +1,5 @@
 // Global variables
+let minSide; 
 let daytime = true;
 let bg = 220;
 let secondSegStart;
@@ -18,46 +19,60 @@ let rects1 = [];
 let rects2 = [];
 let rects3 = [];
 let rects4 = [];
+let lights = [];
+let numLights = 40;
+let lightDelay = 60;
+let ligthStart;
 
-function fillColour(colour) { // Fills colour based on inputted colour name
+function fillColour(colour, alpha) { // Fills colour based on inputted colour name
+  let a = alpha ?? 255;
   switch(colour) {
     case "red":
-      fill(red[0], red[1], red[2]);
+      fill(red[0], red[1], red[2], a);
       break;
     case "blue":
-      fill(blue[0], blue[1], blue[2]);
+      fill(blue[0], blue[1], blue[2], a);
       break;
     case "yellow":
-      fill(yellow[0], yellow[1], yellow[2]);
+      fill(yellow[0], yellow[1], yellow[2], a);
       break;
     case "white":
-      fill(255);
+      fill(255, a);
       break;
     case "black":
-      fill(0);
+      fill(0, a);
       break;
   }
 }
 
-function drawRect1(x, y, w, h, c, m) { // draws rectangles for first building
+function drawRect1(x, y, w, h, c, m) { // initialises rectangles for first building
   rects1.push(new ChangeRect(x, y, w, h, c, m));
 }
 
-function drawRect2(x, y, w, h, c, m) { // draws rectangles for second building
+function drawRect2(x, y, w, h, c, m) { // initialises rectangles for second building
   rects2.push(new ChangeRect(x, y, w, h, c, m));
 }
 
-function drawRect3(x, y, w, h, c, m) { // draws rectangles for third building
+function drawRect3(x, y, w, h, c, m) { // initialises rectangles for third building
   rects3.push(new ChangeRect(x, y, w, h, c, m));
 }
 
-function drawRect4(x, y, w, h, c, m) { // draws rectangles for fourth building
+function drawRect4(x, y, w, h, c, m) { // initialises rectangles for fourth building
   rects4.push(new ChangeRect(x, y, w, h, c, m));
+}
+
+function minDimension() { // determines if width or height is the smaller side of the canvas
+  if (width > height) {
+    minSide = height;
+  } else {
+    minSide = width;
+  }
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noStroke();
+  minDimension();
   secondSegStart = width / 4;  
   secondSegWidth = width / 2 - secondSegStart;  
   thirdSegStart = width / 2;  
@@ -69,7 +84,12 @@ function setup() {
   rectWidth = thirdSegWidth/40;
   rectHeight = maxHeight/80;
 
-  // Buildings
+  // Initalise all light objects
+  for (let i = 0; i < numLights; i++) {
+    lights.push(new LightPulse());
+  }
+
+  // Initialise all building objects
   drawFirstBuilding();
   drawSecondBuilding();
   drawThirdBuilding();
@@ -83,6 +103,18 @@ function draw() {
     bg = lerp(bg, 0, 0.03);
   }
   background(bg);
+
+  // Draw light objects
+  rectMode(CENTER); // light objects drawn using center of rectangle
+  if (daytime == false) {
+    if (frameCount >= lightStart + lightDelay) { // provide some delay before lights start so that sky is darker
+      for (let i = 0; i < lights.length; i++) {
+        lights[i].update();
+        lights[i].draw();
+      }
+    }
+  }
+  rectMode(CORNER); // remainder of buildings drawing using the top left corner
 
   // Draw buildings
   // Building 1
@@ -123,9 +155,8 @@ function draw() {
   rect(0, height-rectHeight*2, width, rectHeight*2);
 }
 
-// Building functions
+// Building functions to setup
 function drawFirstBuilding() {
-  push();
   // Bottom layer
   drawRect1(24,10,6,10,"white");
   drawRect1(14,9,12,9,"red");
@@ -140,9 +171,9 @@ function drawFirstBuilding() {
   drawRect1(24,20,8,8,"white");
   drawRect1(11,18,1,18,"yellow", false);
   drawRect1(15,12,18,3,"yellow", false);
-  drawRect1(35,9,0.25,7,"black", false);
-  drawRect1(30,9,0.5,7,"black", false);
-  drawRect1(18,7,0.5,5,"black", false);
+  drawRect1(35,9,0.25,7,"black");
+  drawRect1(30,9,0.5,7,"black");
+  drawRect1(18,7,0.5,5,"black");
 
   // Middle layer
   drawRect1(35,41,4,18,"white");
@@ -150,7 +181,7 @@ function drawFirstBuilding() {
   drawRect1(36,38,1,15,"yellow", false);
   drawRect1(29,53,2,30,"yellow", false);
   drawRect1(24,50,6,27,"blue");
-  drawRect1(30,50,0.25,27,"black", false);
+  drawRect1(30,50,0.25,27,"black");
   drawRect1(26,38,2,0.5,"black");
   drawRect1(26,42,2,4,"yellow");
   drawRect1(7,33,17,11,"white");
@@ -164,7 +195,7 @@ function drawFirstBuilding() {
   drawRect1(20,20,0.5,8,"black", false);
   drawRect1(20,8,0.5,6,"black", false);
   drawRect1(15,9,18,1,"black", false);
-  drawRect1(32,20,0.5,8,"black", false);
+  drawRect1(32,20,0.5,8,"black");
 
   // Top layer
   drawRect1(4.5,42,6.5,7,"white");
@@ -177,17 +208,13 @@ function drawFirstBuilding() {
   drawRect1(0.5,33,23,1,"black", false);
   drawRect1(25,33,3,1,"black", false);
   drawRect1(37,38,0.5,15,"black", false);
-  drawRect1(32,30,0.25,7,"black", false);
+  drawRect1(32,30,0.25,7,"black");
 
   // Yellow floor
   drawRect1(0,2,39,2,"yellow", false);
-  pop();
 }
 
-function drawSecondBuilding() {
-  push();
-  translate(secondSegStart, 0);
-  
+function drawSecondBuilding() {  
   drawRect2(18, 4, 23, 4, "red");   
   
   //White
@@ -231,21 +258,18 @@ function drawSecondBuilding() {
 
   // black shadows
   drawRect2(13, 32, 1, 10, "black", false);  
-  drawRect2(15, 19, 0.5, 6, "black", false); 
-  drawRect2(15, 11, 1, 4, "black", false); 
+  drawRect2(15, 19, 0.5, 6, "black"); 
+  drawRect2(15, 11, 1, 4, "black"); 
   drawRect2(17, 69, 0.5, 33, "black", false);
-  drawRect2(19.5, 72, 0.5, 51, "black", false);
-  drawRect2(25, 63, 0.5, 50, "black", false);
+  drawRect2(19.5, 72, 0.5, 51, "black");
+  drawRect2(25, 63, 0.5, 50, "black");
   drawRect2(35, 48, 0.5, 20, "black", false);
-  drawRect2(33, 24, 1, 20, "black", false);
+  drawRect2(33, 24, 1, 20, "black");
   drawRect2(0, 6, 19, 0.5, "black", false);
 
-  pop();
 }
 
 function drawThirdBuilding() {
-  push();
-  translate(thirdSegStart, 0);
   
   // Bottom layer
   drawRect3(6, 20, 3, 20, "white");
@@ -297,13 +321,9 @@ function drawThirdBuilding() {
   // Yellow floor
   drawRect3(0, 3, 40, 3, "yellow", false);
   
-  pop();
 }
 
 function drawFourthBuilding() {
-  push();
-
-  translate(fourthSegStart, 0); // sets start of canvas to fourth quarter of the screen
 
   //bottom layer
   drawRect4(2, 16, 12, 15, "red");
@@ -366,7 +386,7 @@ function drawFourthBuilding() {
   drawRect4(2, 16, 12, 0.5, "black", false);
   drawRect4(10, 6, 0.5, 5, "black", false);
   drawRect4(12, 25, 0.5, 6, "black", false);
-  drawRect4(28, 23, 0.5, 6, "black", false);
+  drawRect4(28, 23, 0.5, 6, "black");
   drawRect4(14, 35, 0.5, 18, "black", false);
   drawRect4(27, 32, 0.5, 15, "black", false);
   drawRect4(27, 14, 0.5, 12, "black", false);
@@ -389,10 +409,10 @@ function drawFourthBuilding() {
 
 
 
-  pop();
+
 }
 
-class ChangeRect {
+class ChangeRect { // class that defines movement behaviour for each individual rectangle of each building
   constructor(x, y, w, h, c, move) {
     this.x = x;
     this.y = y;
@@ -417,15 +437,15 @@ class ChangeRect {
   }
 
   update() {
-    if (this.move == true) {
+    if (this.move == true) { // only move if boolean is set to allow rect to move
       this.currentX = this.x + noise(this.currentNoiseX) * this.amplitude - this.amplitude/2;
-      this.currentH = this.height + noise(this.currentNoiseHeight) * this.amplitude;
-      this.currentY = this.y + noise(this.currentNoiseHeight) * this.amplitude;
+      this.currentH = this.height + noise(this.currentNoiseHeight) * this.amplitude - this.amplitude/2;
+      this.currentY = this.y + noise(this.currentNoiseHeight) * this.amplitude - this.amplitude/2;
       this.currentNoiseX += this.noiseStep;
       this.currentNoiseHeight += this.noiseStep;
     }
 
-    if (daytime == true) {
+    if (daytime == true) { // only start moving once it is night time
       this.amplitude = lerp(this.amplitude, 0, 0.02);
     } else {
       this.amplitude = lerp(this.amplitude, rectWidth, 0.02);
@@ -433,9 +453,50 @@ class ChangeRect {
   }
 }
 
+class LightPulse { // class that defines behaviour of lights in the background at night time
+  constructor() {
+    this.x = random(width);
+    this.y = random(height);
+    this.noiseStep = 0.1;
+    this.currentSize = 0;
+    this.currentNoise = 0;
+    this.amplitude = random(minSide/6, minSide/2);
+    this.colour = Math.round(random(1,2));
+    this.filled = "red";
+    this.targetSize = 0;
+  }
 
-function windowResized() {
+  draw() {
+    push();
+    fillColour(this.filled, 50);
+    rect(this.x, this.y, this.currentSize, this.currentSize);
+    pop();
+  }
+
+  update() {
+    this.currentSize = lerp(this.currentSize, this.targetSize, 0.2);
+
+    if (this.colour % 3 == 0) {
+      this.filled = "red";
+    } else if (this.colour % 3 == 1) {
+      this.filled = "blue";
+    } else {
+      this.filled = "yellow";
+    }
+
+    if (frameCount % 60 == 0) { // every second change to a random colour
+      this.colour += Math.round(random(1,2));
+    }
+
+    this.currentNoise += this.noiseStep;
+    this.targetSize = map(noise(this.currentNoise), 0, 1, 0, this.amplitude);
+  }
+}
+
+
+function windowResized() { // update all relevant variables upon window resize
   resizeCanvas(windowWidth, windowHeight);
+  minDimension();
   secondSegStart = width / 4;  
   secondSegWidth = width / 2 - secondSegStart;  
   thirdSegStart = width / 2;  
@@ -446,8 +507,20 @@ function windowResized() {
   maxHeight = windowHeight - minHeight;
   rectWidth = thirdSegWidth/40;
   rectHeight = maxHeight/80;
+  daytime = true; // change back to daytime to allow lights to refresh
+  lights = []; // clear lights so a new combination is generated upon next nighttime
+  for (let i = 0; i < numLights; i++) {
+    lights.push(new LightPulse)
+  }
 }
 
-function mouseClicked() {
+function mouseClicked() { // change between day/night upon mouse click
+  if (daytime == false) {
+    lights = []; // refresh lights with new combination each time night turns into day so a new look is achieved upon next night time
+    for (let i = 0; i < numLights; i++) {
+      lights.push(new LightPulse)
+    }
+  }
   daytime = !daytime;
+  lightStart = frameCount; // set time to start calculating delay before lights start
 }
